@@ -5,8 +5,9 @@
   "private": true,
   "scripts": {
     "dev": "tinacms dev -c \"astro dev --port 4322\"",
-    "build": "tinacms build --local --skip-cloud-checks && astro build",
-    "preview": "astro preview"
+    "build": "tinacms build && astro build",
+    "preview": "astro preview",
+    "build:local": "tinacms build --local --skip-cloud-checks && astro build"
   },
   "dependencies": {
     "@astrojs/react": "^7.0.0",

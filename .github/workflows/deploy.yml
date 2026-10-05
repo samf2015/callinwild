@@ -1,0 +1,54 @@
+# Builds the site and uploads it to the Plesk server (https://cw.iomad.com) by FTP.
+# Runs on every push to main, which includes every Save in the Tina Cloud editor, and can be run by hand
+# from the Actions tab ("Run workflow").
+#
+# Repository secrets (Settings → Secrets and variables → Actions → Secrets):
+#   TINA_TOKEN     Tina Cloud read-only token (app.tina.io → project → Tokens)
+#   FTP_SERVER     Plesk FTP host, e.g. cw.iomad.com
+#   FTP_USERNAME   Plesk FTP login for the domain
+#   FTP_PASSWORD   Plesk FTP password
+# Optional repository variables (same page → Variables):
+#   FTP_PROTOCOL   ftp (default) or ftps
+#   FTP_SERVER_DIR Folder the site is served from, relative to the FTP login (default: httpdocs/)
+
+name: Deploy to Plesk
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Only one deploy at a time; a newer save replaces a deploy that hasn't started yet
+concurrency:
+  group: deploy-plesk
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Build (Tina Cloud + Astro)
+        run: npm run build
+        env:
+          TINA_TOKEN: ${{ secrets.TINA_TOKEN }}
+          GITHUB_BRANCH: ${{ github.ref_name }}
+
+      - name: Upload to Plesk
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ${{ vars.FTP_PROTOCOL || 'ftp' }}
+          local-dir: ./dist/
+          server-dir: ${{ vars.FTP_SERVER_DIR || 'httpdocs/' }}

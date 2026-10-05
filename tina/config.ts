@@ -2,8 +2,10 @@ import { defineConfig } from 'tinacms';
 
 export default defineConfig({
   branch: process.env.GITHUB_BRANCH || 'main',
-  // Leave empty for local editing; set these from Tina Cloud (app.tina.io) to edit on the live site.
-  clientId: process.env.TINA_CLIENT_ID || null,
+  // Tina Cloud project (app.tina.io). The client ID is public by design; the token is secret and is only
+  // provided at build time via the TINA_TOKEN environment variable (a GitHub Actions secret), never committed.
+  // `npm run dev` still uses local mode (no login, edits saved to these files).
+  clientId: process.env.TINA_CLIENT_ID || '9b3a026a-9dcf-433b-81d8-bf8fabbfd40c',
   token: process.env.TINA_TOKEN || null,
 
   build: { outputFolder: 'admin', publicFolder: 'public' },
