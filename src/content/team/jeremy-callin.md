@@ -1,6 +1,6 @@
 ---
 name: Jeremy Callin
-role: Senior Partner
+role: Advocate, Senior Partner, Notary Public & Commissioner for Oaths
 department: litigation
 order: 1
 photo: /images/team/jeremy-callin.jpg

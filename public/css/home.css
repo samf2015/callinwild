@@ -57,7 +57,7 @@ ul{margin:0; padding:0;}
 .featured-people-head{display:flex; align-items:baseline; justify-content:space-between; gap:20px; flex-wrap:wrap; margin-bottom:28px;}
 .featured-people-head h2{margin-bottom:6px;}
 .featured-people-head p{margin:0; font-size:14.5px; color:#4a453d; max-width:520px;}
-.people-strip{display:grid; grid-template-columns:repeat(5,1fr); gap:18px;}
+.people-strip{display:grid; grid-template-columns:repeat(6,1fr); gap:18px;} /* six key partners in one row (proof showed five) */
 .people-card{text-align:left; text-decoration:none; display:block;}
 .people-photo{position:relative; aspect-ratio:4/5; overflow:hidden; border-radius:6px; background:#f2efe9; margin-bottom:12px;}
 .people-photo img{width:100%; height:100%; object-fit:cover; display:block; transition:transform .35s ease;}
