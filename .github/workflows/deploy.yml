@@ -1,15 +1,12 @@
-# Builds the site and uploads it to the Plesk server (https://cw.iomad.com) by FTP.
+# Builds the site and publishes the finished files to the `deploy` branch.
+# Plesk (cw.iomad.com → Git) pulls that branch into httpdocs; a GitHub webhook tells Plesk to pull straight away.
+# No FTP is needed, so the server's firewall can stay closed.
+#
 # Runs on every push to main, which includes every Save in the Tina Cloud editor, and can be run by hand
 # from the Actions tab ("Run workflow").
 #
-# Repository secrets (Settings → Secrets and variables → Actions → Secrets):
-#   TINA_TOKEN     Tina Cloud read-only token (app.tina.io → project → Tokens)
-#   FTP_SERVER     Plesk FTP host, e.g. cw.iomad.com
-#   FTP_USERNAME   Plesk FTP login for the domain
-#   FTP_PASSWORD   Plesk FTP password
-# Optional repository variables (same page → Variables):
-#   FTP_PROTOCOL   ftp (default) or ftps
-#   FTP_SERVER_DIR Folder the site is served from, relative to the FTP login (default: httpdocs/)
+# Repository secret (Settings → Secrets and variables → Actions → Secrets):
+#   TINA_TOKEN   Tina Cloud read-only token (app.tina.io → project → Tokens)
 
 name: Deploy to Plesk
 
@@ -18,7 +15,10 @@ on:
     branches: [main]
   workflow_dispatch:
 
-# Only one deploy at a time; a newer save replaces a deploy that hasn't started yet
+permissions:
+  contents: write # to update the deploy branch
+
+# Only one deploy at a time
 concurrency:
   group: deploy-plesk
   cancel-in-progress: false
@@ -43,12 +43,13 @@ jobs:
           TINA_TOKEN: ${{ secrets.TINA_TOKEN }}
           GITHUB_BRANCH: ${{ github.ref_name }}
 
-      - name: Upload to Plesk
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      - name: Publish built site to the deploy branch
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ${{ vars.FTP_PROTOCOL || 'ftp' }}
-          local-dir: ./dist/
-          server-dir: ${{ vars.FTP_SERVER_DIR || 'httpdocs/' }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: deploy
+          publish_dir: ./dist
+          force_orphan: true # keep only the latest build, so the branch stays small
+          user_name: github-actions[bot]
+          user_email: 41898282+github-actions[bot]@users.noreply.github.com
+          commit_message: 'Deploy ${{ github.sha }}'
