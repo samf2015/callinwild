@@ -49,6 +49,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          # Tina writes admin/.gitignore into the build to keep the editor out of source control;
+          # remove it here, otherwise the editor would be missing from the deployed site
+          find . -name .gitignore -delete
           git init -q -b deploy
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
