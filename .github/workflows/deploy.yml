@@ -2,8 +2,8 @@
 # Plesk (cw.iomad.com → Git) pulls that branch into httpdocs; a GitHub webhook tells Plesk to pull straight away.
 # No FTP is needed, so the server's firewall can stay closed.
 #
-# Runs on every push to main, which includes every Save in the Tina Cloud editor, and can be run by hand
-# from the Actions tab ("Run workflow").
+# Runs on every push to main, which includes every Save in the Tina Cloud editor. To redeploy by hand use
+# Actions → Deploy to Plesk → Run workflow (re-running an old run repeats that commit's old workflow).
 #
 # Repository secret (Settings → Secrets and variables → Actions → Secrets):
 #   TINA_TOKEN   Tina Cloud read-only token (app.tina.io → project → Tokens)
@@ -27,9 +27,9 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 24
           cache: npm
@@ -43,13 +43,15 @@ jobs:
           TINA_TOKEN: ${{ secrets.TINA_TOKEN }}
           GITHUB_BRANCH: ${{ github.ref_name }}
 
+      # Replace the deploy branch with this build (a single commit, so the branch stays small)
       - name: Publish built site to the deploy branch
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_branch: deploy
-          publish_dir: ./dist
-          force_orphan: true # keep only the latest build, so the branch stays small
-          user_name: github-actions[bot]
-          user_email: 41898282+github-actions[bot]@users.noreply.github.com
-          commit_message: 'Deploy ${{ github.sha }}'
+        working-directory: dist
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git init -q -b deploy
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Deploy ${GITHUB_SHA}"
+          git push -f "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" deploy
