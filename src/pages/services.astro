@@ -1,0 +1,20 @@
+---
+import client from '../../tina/__generated__/client';
+import Base from '../layouts/Base.astro';
+import ServicesView from '../components/ServicesView';
+import ServiceCards from '../components/ServiceCards';
+import { getServices } from '../lib/services';
+
+const [result, home, services] = await Promise.all([
+  client.queries.servicesPage({ relativePath: 'services-page.md' }),
+  client.queries.homePage({ relativePath: 'home-page.md' }),
+  getServices(),
+]);
+const page = result.data.servicesPage;
+---
+<Base title={page.title} active="services">
+  <link slot="head" rel="stylesheet" href="/css/service-cards.css" />
+  <ServicesView client:load {...result} />
+  <!-- Same cards and heading as the homepage: services from the Services collection, heading from the Homepage document -->
+  <ServiceCards slot="after-content" client:load heading={home.data.homePage.servicesHeading} services={services} />
+</Base>

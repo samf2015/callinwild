@@ -1,0 +1,3 @@
+---
+heading: Our People
+---

@@ -1,0 +1,20 @@
+---
+import client from '../../../tina/__generated__/client';
+import Base from '../../layouts/Base.astro';
+import NewsArticle from '../../components/NewsArticle';
+
+export async function getStaticPaths() {
+  const posts = await client.queries.postConnection({ first: 1000 });
+  return (posts.data.postConnection.edges ?? [])
+    .map((edge) => edge?.node?._sys.filename)
+    .filter(Boolean)
+    .map((slug) => ({ params: { slug } }));
+}
+
+const result = await client.queries.post({ relativePath: `${Astro.params.slug}.md` });
+const post = result.data.post;
+const url = `https://www.callinwild.com/news/${Astro.params.slug}`;
+---
+<Base title={post.title} heading="News & Insights" description={post.excerpt ?? undefined} active="news">
+  <NewsArticle client:load {...result} url={url} />
+</Base>

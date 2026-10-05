@@ -1,0 +1,19 @@
+---
+import client from '../../../tina/__generated__/client';
+import Base from '../../layouts/Base.astro';
+import ProfileView from '../../components/ProfileView';
+
+export async function getStaticPaths() {
+  const profiles = await client.queries.profileConnection({ first: 1000 });
+  return (profiles.data.profileConnection.edges ?? [])
+    .map((edge) => edge?.node?._sys.filename)
+    .filter(Boolean)
+    .map((slug) => ({ params: { slug } }));
+}
+
+const result = await client.queries.profile({ relativePath: `${Astro.params.slug}.md` });
+const person = result.data.profile;
+---
+<Base title={person.name} description={person.role ?? undefined} active="team" banner={false} theme="profiles">
+  <ProfileView client:load {...result} />
+</Base>

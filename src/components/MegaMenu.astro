@@ -1,0 +1,154 @@
+---
+// Services mega menu, on every page (design: https://proofs.iomad.com/CW-V2/callin-wild-mega-menu.html).
+// Opens when "Services" in the header is hovered or focused. Content: the "Services Mega Menu" document in Tina;
+// practice area names/links come from the Services collection and people from Team Profiles.
+import client from '../../tina/__generated__/client';
+
+const result = await client.queries.megaMenu({ relativePath: 'mega-menu.md' });
+const menu = result.data.megaMenu;
+
+type Person = { name: string; role?: string | null; photo?: string | null; slug: string };
+const toPeople = (list: ReadonlyArray<{ profile?: unknown } | null> | null | undefined): Person[] =>
+  (list ?? [])
+    .map((c) => c?.profile as { __typename?: string; name: string; role?: string | null; photo?: string | null; _sys: { filename: string } } | undefined)
+    .filter((p) => p && p.__typename === 'Profile')
+    .map((p) => ({ name: p!.name, role: p!.role, photo: p!.photo, slug: p!._sys.filename }));
+
+const areas = (menu.practiceAreas ?? [])
+  .map((area, i) => {
+    const service = area?.service as { __typename?: string; title: string; _sys: { filename: string } } | undefined;
+    if (!service || service.__typename !== 'Service') return null;
+    return { key: `area-${i}`, title: service.title, link: `/services/${service._sys.filename}`, heading: area?.contactsHeading, people: toPeople(area?.contacts) };
+  })
+  .filter((a) => a !== null);
+
+const defaultHeading = menu.contactsHeading || 'Key contacts';
+const defaultPeople = toPeople(menu.contacts);
+---
+<div class="mega-wrap" id="mega-panel" aria-hidden="true">
+  <div class="mega">
+    <div class="mega-inner">
+      <div class="mega-grid">
+        <div class="mega-intro">
+          <h3>{menu.heading} {menu.headingAccent && <em>{menu.headingAccent}</em>}</h3>
+          {menu.intro && <p>{menu.intro}</p>}
+          {menu.buttonLabel && (
+            <a class="mega-cta" href={menu.buttonLink || '/services'}>
+              {menu.buttonLabel}
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+            </a>
+          )}
+        </div>
+        <div class="mega-rule"></div>
+        <div class="mega-links-col">
+          <p class="mega-heading">{menu.practiceAreasHeading || 'Practice areas'}</p>
+          <div class="mega-links">
+            {areas.map((a) => <a href={a!.link ?? '#'} data-contacts={a!.key}>{a!.title}</a>)}
+          </div>
+        </div>
+        <div class="mega-rule"></div>
+        <div>
+          <p class="mega-heading" id="mega-contacts-heading">{defaultHeading}</p>
+          <div id="mega-contacts-list">
+            {defaultPeople.map((person) => (
+              <a class="mega-contact" href={`/team/${person.slug}`}>
+                {person.photo && <img src={person.photo} alt={person.name} />}
+                <div>
+                  <div class="mega-contact-name">{person.name}</div>
+                  {person.role && <div class="mega-contact-title">{person.role}</div>}
+                </div>
+              </a>
+            ))}
+          </div>
+          {/* Contacts for each practice area, swapped in on hover */}
+          {areas.filter((a) => a!.people.length > 0).map((a) => (
+            <template data-contacts={a!.key} data-heading={a!.heading || defaultHeading}>
+              {a!.people.map((person) => (
+                <a class="mega-contact" href={`/team/${person.slug}`}>
+                  {person.photo && <img src={person.photo} alt={person.name} />}
+                  <div>
+                    <div class="mega-contact-name">{person.name}</div>
+                    {person.role && <div class="mega-contact-title">{person.role}</div>}
+                  </div>
+                </a>
+              ))}
+            </template>
+          ))}
+        </div>
+      </div>
+      {(menu.footerText || menu.footerPhone || menu.footerEmail) && (
+        <div class="mega-foot">
+          <span>{menu.footerText} {menu.footerPhone && <strong>{menu.footerPhone}</strong>}</span>
+          {menu.footerEmail && <a href={`mailto:${menu.footerEmail}`}>{menu.footerEmail}</a>}
+        </div>
+      )}
+    </div>
+  </div>
+</div>
+
+<script is:inline>
+  (function () {
+    var panel = document.getElementById('mega-panel');
+    var trigger = document.querySelector('#site-header .cw-nav a[href="/services"]');
+    var header = document.getElementById('site-header');
+    if (!panel || !trigger) return;
+    var timer = null;
+    var desktop = window.matchMedia('(min-width: 981px)');
+
+    function open() {
+      if (!desktop.matches) return;
+      clearTimeout(timer);
+      panel.classList.add('is-open');
+      panel.setAttribute('aria-hidden', 'false');
+      trigger.setAttribute('aria-expanded', 'true');
+    }
+    function close() {
+      panel.classList.remove('is-open');
+      panel.setAttribute('aria-hidden', 'true');
+      trigger.setAttribute('aria-expanded', 'false');
+      showContacts('default');
+    }
+    function scheduleClose() {
+      clearTimeout(timer);
+      timer = setTimeout(close, 260);
+    }
+
+    trigger.setAttribute('aria-haspopup', 'true');
+    trigger.setAttribute('aria-expanded', 'false');
+    trigger.addEventListener('mouseenter', open);
+    trigger.addEventListener('focus', open);
+    // Moving to another menu item closes the panel
+    header.querySelectorAll('.cw-nav a').forEach(function (a) {
+      if (a !== trigger) a.addEventListener('mouseenter', scheduleClose);
+    });
+    header.addEventListener('mouseleave', scheduleClose);
+    panel.addEventListener('mouseenter', function () { clearTimeout(timer); });
+    panel.addEventListener('mouseleave', scheduleClose);
+    panel.addEventListener('focusout', function (e) { if (!panel.contains(e.relatedTarget) && e.relatedTarget !== trigger) close(); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
+
+    // Key contacts swap to match the hovered practice area (fade, as in the proof)
+    var list = document.getElementById('mega-contacts-list');
+    var heading = document.getElementById('mega-contacts-heading');
+    var defaults = { html: list.innerHTML, heading: heading.textContent };
+    var current = 'default';
+    function showContacts(key) {
+      if (key === current) return;
+      var tpl = key === 'default' ? null : panel.querySelector('template[data-contacts="' + key + '"]');
+      if (key !== 'default' && !tpl) key = 'default';
+      if (key === current) return;
+      current = key;
+      list.classList.add('is-swapping');
+      setTimeout(function () {
+        heading.textContent = tpl ? tpl.dataset.heading : defaults.heading;
+        list.innerHTML = tpl ? tpl.innerHTML : defaults.html;
+        list.classList.remove('is-swapping');
+      }, 150);
+    }
+    panel.querySelectorAll('.mega-links a').forEach(function (link) {
+      link.addEventListener('mouseenter', function () { showContacts(link.dataset.contacts); });
+      link.addEventListener('focus', function () { showContacts(link.dataset.contacts); });
+    });
+    panel.querySelector('.mega-links-col').addEventListener('mouseleave', function () { showContacts('default'); });
+  })();
+</script>

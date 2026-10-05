@@ -1,0 +1,17 @@
+---
+import client from '../../tina/__generated__/client';
+import Base from '../layouts/Base.astro';
+import LegalView from '../components/LegalView';
+
+const result = await client.queries.legalPage({ relativePath: 'legal-page.md' });
+const page = result.data.legalPage;
+---
+<Base
+  title={page.title.replace(/\s+/g, ' ')}
+  heading={page.title}
+  bannerStyle="home"
+  bannerImage={page.bannerImage ?? undefined}
+  plainSection
+>
+  <LegalView client:load {...result} />
+</Base>

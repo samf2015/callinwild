@@ -1,0 +1,68 @@
+/* Site header + footer, used on every page. Values copied from the V2 homepage proof
+   (https://proofs.iomad.com/CW-V2/callin-wild-homepage.html). Class names are prefixed cw- and every
+   property is set explicitly so the older callin.css (loaded on some pages) can't change the look. */
+@font-face {
+  font-family: 'Nunito Var';
+  src: url(/fonts/nunito-var.woff2) format('woff2');
+  font-weight: 200 1000; font-style: normal; font-display: swap;
+}
+
+.cw-header, .cw-header *, .cw-header *::before, .cw-header *::after,
+.cw-footer, .cw-footer *, .cw-footer *::before, .cw-footer *::after { box-sizing: border-box; }
+
+/* ===== header ===== */
+.cw-header {
+  position: fixed; top: 0; left: 0; right: auto; width: 100%; z-index: 100;
+  float: none; margin: 0; padding: 15px 0;
+  background: linear-gradient(rgba(10,10,12,.15), rgba(10,10,12,.35)), url(/images/home/header-bg.jpg);
+  background-size: cover; background-position: center; background-repeat: repeat;
+  font-family: 'Nunito Var', sans-serif; font-size: 16px; font-weight: 400; line-height: 1.5;
+  -webkit-font-smoothing: antialiased; text-align: left;
+}
+.cw-container { max-width: 1080px; width: auto; margin: 0 auto; padding: 0 20px; }
+.cw-header .cw-container { display: flex; justify-content: space-between; align-items: center; position: relative; }
+.cw-logo a { color: #d67e0e; text-decoration: none; transition: none; }
+.cw-logo svg { height: 64px; width: auto; }
+.cw-header-right { display: flex; align-items: center; gap: 30px; }
+.cw-nav { display: block; position: static; width: auto; height: auto; background: none; padding: 0; }
+.cw-nav ul { list-style: none; display: flex; margin: 0; padding: 0; }
+.cw-nav ul li { display: inline-block; margin: 0 15px; padding: 10px 0; position: relative; }
+.cw-nav ul li > a { color: #ffffff; text-decoration: none; text-transform: uppercase; font-weight: 700; font-size: 14px; letter-spacing: .02em; transition: none; }
+.cw-nav ul li > a.active { color: #d67e0e; }
+/* Phone + email tabs, as on callinwild.com: orange tabs hanging from the top of the screen, black icons that turn
+   white on hover; hovering the phone tab reveals the number in an orange bar below it. */
+.cw-contact { display: flex; align-items: center; gap: 4px; margin-left: 0; } /* 4px = the space between the two tabs on callinwild.com */
+.cw-contact .cw-call, .cw-contact .cw-email { display: inline-block; position: relative; width: 38px; height: 28px; padding: 0; text-decoration: none; transition: none; }
+.cw-contact .cw-call { background: url(/images/phone-black.svg) center / 14px no-repeat; }
+.cw-contact .cw-call:hover, .cw-contact .cw-call:focus-visible { background: url(/images/phone-white.svg) center / 14px no-repeat; }
+.cw-contact .cw-email { background: url(/images/email-black.svg) center / 22px no-repeat; }
+.cw-contact .cw-email:hover, .cw-contact .cw-email:focus-visible { background: url(/images/email-white.svg) center / 22px no-repeat; }
+/* the orange tab behind each icon, reaching up off the top of the screen */
+.cw-contact .cw-call::after, .cw-contact .cw-email::after { content: ""; position: absolute; left: 0; bottom: -10px; width: 100%; height: 200px; background: #d67e0e; z-index: -1; }
+/* the phone number, shown on hover */
+.cw-contact .cw-call span { position: absolute; right: 0; top: 100%; margin-top: 10px; padding: 5px 10px; width: 180px; background: #d67e0e; color: #000; font-family: 'Nunito Var', sans-serif; font-size: 16px; font-weight: 400; line-height: 1.5; white-space: nowrap; visibility: hidden; opacity: 0; transition: all .5s ease; }
+.cw-contact .cw-call:hover span, .cw-contact .cw-call:focus-visible span { visibility: visible; opacity: 1; }
+.cw-hamburger { display: none; cursor: pointer; width: 32px; height: 22px; position: relative; border: 0; background: none; padding: 0; margin: 0; }
+.cw-hamburger span, .cw-hamburger::before, .cw-hamburger::after { content: ""; position: absolute; left: 0; width: 100%; height: 2px; background: #fff; }
+.cw-hamburger::before { top: 0; } .cw-hamburger span { top: 10px; } .cw-hamburger::after { bottom: 0; }
+
+/* ===== footer ===== */
+.cw-footer { float: left; width: 100%; margin: 0; background: #15161c; padding: 36px 0; font-family: 'Nunito Var', sans-serif; font-size: 16px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+.cw-footer p, .cw-footer p:last-child { color: rgba(255,255,255,.65); font-size: 13px; line-height: 1.5; text-align: left; margin: 0 0 6px !important; }
+.cw-footer a { color: rgba(255,255,255,.85); text-decoration: none; font-size: inherit; transition: none; }
+.cw-footer a:hover { color: #d67e0e; }
+
+@media (max-width: 980px) {
+  .cw-nav { display: none; }
+  .cw-hamburger { display: block; }
+  .cw-header.js-nav-open .cw-nav { display: block; position: absolute; top: 100%; left: 0; width: 100%; background: #15161c; padding: 10px 0; }
+  .cw-header.js-nav-open .cw-nav ul { display: block; }
+  .cw-header.js-nav-open .cw-nav ul li { display: block; margin: 0; padding: 12px 24px; }
+}
+@media (max-width: 480px) {
+  .cw-header-right { gap: 10px; }
+  .cw-contact .cw-call, .cw-contact .cw-email { width: 28px; }
+}
+@media (max-width: 640px) {
+  .cw-container { padding: 0 20px; }
+}

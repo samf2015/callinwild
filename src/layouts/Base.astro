@@ -1,0 +1,124 @@
+---
+// Site shell. Every page gets the same header and footer (V2 homepage design, styles in public/css/site-chrome.css)
+// and the Services mega menu (opens from the header's Services link).
+// `theme` only picks the page's own stylesheet:
+//   classic  - callinwild.com's callin.css (News, Services, Contact...)
+//   profiles - the Our People / profile pages design (team.css)
+//   home     - the V2 homepage design (home.css)
+// Set banner={false} for templates that bring their own layout instead of the gold title banner.
+// slot="after-content" adds full-width sections below the page content (e.g. the service cards on Services).
+import SiteHeader from '../components/SiteHeader.astro';
+import MegaMenu from '../components/MegaMenu.astro';
+
+const {
+  title, heading, description, active, banner = true, theme = 'classic',
+  bannerImage = '/images/services-banner.jpg', // photo in the gold title banner
+  sectionClass = '', // extra class on the main content section, e.g. callin-contact
+  bannerStyle = 'page', // 'page' = standard gold title banner; 'home' = the larger banner used on Legal & Regulatory
+  plainSection = false, // true = white content section instead of the grey gradient
+} = Astro.props;
+const titleLines = String(heading ?? title ?? '').split('\n'); // a line break in the title becomes <br> in the banner
+const LIVE = 'https://www.callinwild.com';
+const nav = [
+  { label: 'Home', href: '/', key: 'home' },
+  { label: 'Services', href: '/services', key: 'services' },
+  { label: 'Our People', href: '/team', key: 'team' },
+  { label: 'News & Insights', href: '/news', key: 'news' },
+  { label: 'Contact us', href: '/contact', key: 'contact' },
+];
+const profiles = theme === 'profiles';
+const home = theme === 'home';
+const classic = !profiles && !home;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title ? `${title} | Callin Wild` : 'Callin Wild'}</title>
+    {description && <meta name="description" content={description} />}
+    {profiles && <link rel="stylesheet" href="/css/team.css" />}
+    {home && <link rel="stylesheet" href="/css/home.css" />}
+    {classic && (
+      <Fragment>
+        <link rel="stylesheet" href="/css/callin.css" />
+        <link rel="stylesheet" href="/css/styles.css" />
+      </Fragment>
+    )}
+    <link rel="stylesheet" href="/css/site-chrome.css" />
+    <link rel="stylesheet" href="/css/mega-menu.css" />
+    <slot name="head" />
+  </head>
+  <body class={profiles ? 'theme-profiles' : undefined}>
+    <SiteHeader nav={nav} active={active} />
+    <MegaMenu />
+    <slot name="after-header" />
+
+    {banner ? (
+    <Fragment>
+    {bannerStyle === 'home' ? (
+    <section class="callin-section home-banner">
+      <div class="container">
+        <div class="home-banner-left">
+          <div class="home-banner-img" style={`background:url(${bannerImage});`}></div>
+        </div>
+        <div class="home-banner-right">
+          <div class="home-banner-content">
+            <h1>{titleLines.map((line, i) => <Fragment>{i > 0 && <br />}{line}</Fragment>)}</h1>
+          </div>
+        </div>
+      </div>
+    </section>
+    ) : (
+    <section class="callin-section banner">
+      <div class="container">
+        <div class="banner-left">
+          <div class="banner-img" style={`background:url(${bannerImage});`}></div>
+        </div>
+        <div class="banner-right">
+          <div class="banner-content">
+            <h1>{titleLines.map((line, i) => <Fragment>{i > 0 && <br />}{line}</Fragment>)}</h1>
+          </div>
+        </div>
+      </div>
+    </section>
+    )}
+
+    <section class={`callin-section ${plainSection ? '' : 'calling-gradient-gray'} ${sectionClass}`.replace(/\s+/g, ' ').trim()}>
+      <div class="container">
+        <slot />
+      </div>
+    </section>
+    <slot name="after-content" />
+    </Fragment>
+    ) : (
+    <main class="no-banner">
+      <slot />
+    </main>
+    )}
+
+    <footer class="cw-footer">
+      <div class="cw-container">
+        <p><a href="/legal-regulatory">Legal &amp; Regulatory</a> | &copy; Callin Wild {new Date().getFullYear()}</p>
+        <p>CW Corporate Services Limited is licensed by <a href="https://www.iomfsa.im" target="_blank">Isle of Man Financial Services Authority</a></p>
+        <p><a href="https://www.isleofmanadvertising.com" target="_blank">Website design by Isle of Man Advertising &amp; PR</a></p>
+      </div>
+    </footer>
+
+    {classic && (
+      <Fragment>
+        <script is:inline src="/js/jquery-3.6.0.js"></script>
+        <script is:inline src="/js/callin.js"></script>
+      </Fragment>
+    )}
+    <script is:inline>
+      // The fixed header's height changes with screen size; expose it so pages and the mega menu can sit below it
+      (function () {
+        var header = document.getElementById('site-header');
+        var set = function () { document.documentElement.style.setProperty('--header-h', header.offsetHeight + 'px'); };
+        set();
+        if (window.ResizeObserver) new ResizeObserver(set).observe(header);
+      })();
+    </script>
+  </body>
+</html>

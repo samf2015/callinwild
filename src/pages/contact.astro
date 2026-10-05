@@ -1,0 +1,17 @@
+---
+import client from '../../tina/__generated__/client';
+import Base from '../layouts/Base.astro';
+import ContactView from '../components/ContactView';
+
+const result = await client.queries.contactPage({ relativePath: 'contact-page.md' });
+const page = result.data.contactPage;
+---
+<Base
+  title={page.title}
+  active="contact"
+  bannerImage={page.bannerImage ?? undefined}
+  sectionClass="callin-contact"
+  description="Contact Callin Wild, Advocates, Solicitors and Notaries Public in Douglas, Isle of Man."
+>
+  <ContactView client:load {...result} />
+</Base>

@@ -1,0 +1,24 @@
+---
+import client from '../../../tina/__generated__/client';
+import Base from '../../layouts/Base.astro';
+import ServicePageView from '../../components/ServicePageView';
+
+export async function getStaticPaths() {
+  const services = await client.queries.serviceConnection({ first: 1000 });
+  return (services.data.serviceConnection.edges ?? [])
+    .map((edge) => edge?.node?._sys.filename)
+    .filter(Boolean)
+    .map((slug) => ({ params: { slug } }));
+}
+
+const result = await client.queries.service({ relativePath: `${Astro.params.slug}.md` });
+const service = result.data.service;
+---
+<Base
+  title={service.pageTitle || service.title}
+  description={service.summary ?? undefined}
+  active="services"
+  bannerImage={service.bannerImage ?? undefined}
+>
+  <ServicePageView client:load {...result} />
+</Base>

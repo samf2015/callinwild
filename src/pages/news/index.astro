@@ -1,0 +1,25 @@
+---
+import client from '../../../tina/__generated__/client';
+import Base from '../../layouts/Base.astro';
+
+const result = await client.queries.postConnection({ first: 1000 });
+const posts = (result.data.postConnection.edges ?? [])
+  .map((edge) => edge?.node)
+  .filter((post) => post !== null && post !== undefined)
+  .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+const formatDate = (d: string) =>
+  new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+---
+<Base title="News & Insights" active="news">
+  <div class="callin-newses">
+    {posts.map((post) => (
+      <div class="callin-news">
+        <a href={`/news/${post._sys.filename}`} class="callin-news-read">
+          <div class="callin-news-date">{formatDate(post.date)}</div>
+          <h3 class="callin-news-title">{post.title}</h3>
+        </a>
+      </div>
+    ))}
+  </div>
+</Base>

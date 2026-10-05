@@ -1,0 +1,15 @@
+---
+import client from '../../tina/__generated__/client';
+import Base from '../layouts/Base.astro';
+import HomeView from '../components/HomeView';
+import { getServices } from '../lib/services';
+
+const [result, services] = await Promise.all([
+  client.queries.homePage({ relativePath: 'home-page.md' }),
+  getServices(),
+]);
+---
+<Base description={result.data.homePage.heroHeading} active="home" banner={false} theme="home">
+  <link slot="head" rel="stylesheet" href="/css/service-cards.css" />
+  <HomeView client:load {...result} services={services} />
+</Base>

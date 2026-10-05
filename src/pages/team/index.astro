@@ -1,0 +1,71 @@
+---
+import client from '../../../tina/__generated__/client';
+import Base from '../../layouts/Base.astro';
+import { DEPARTMENTS } from '../../lib/departments';
+
+const [profilesResult, pageResult] = await Promise.all([
+  client.queries.profileConnection({ first: 1000 }),
+  client.queries.teamPage({ relativePath: 'team-page.md' }),
+]);
+const settings = pageResult.data.teamPage;
+const people = (profilesResult.data.profileConnection.edges ?? [])
+  .map((edge) => edge?.node)
+  .filter((p) => p !== null && p !== undefined)
+  .sort((a, b) => (a.order ?? 999) - (b.order ?? 999) || a.name.localeCompare(b.name));
+
+const filters = DEPARTMENTS.filter((d) => d.filter);
+const heading = settings.heading || 'Our People';
+---
+<Base title={heading} active="team" banner={false} theme="profiles">
+  <div id="screen-grid">
+    <div class="frame">
+      <div class="grid-head">
+        <h2>{heading}</h2>
+        {settings.intro && <p>{settings.intro}</p>}
+      </div>
+
+      <div class="filters" id="filters">
+        <button type="button" class="is-active" data-dept="all">All</button>
+        {filters.map((d) => <button type="button" data-dept={d.id}>{d.label}</button>)}
+      </div>
+
+      <div class="team-grid" id="team-grid">
+        {people.map((person) => (
+          <a class="tcard" href={`/team/${person._sys.filename}`} data-dept={person.department} data-slug={person._sys.filename}>
+            <div class="tphoto">
+              {person.photo && <img src={person.photo} alt={person.name} loading="lazy" />}
+              <div class="view">View profile &#8594;</div>
+            </div>
+            <div class="tname">{person.name}</div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </div>
+
+  <script is:inline>
+    (function () {
+      // Old-style deep links (/team#jeremy-callin, as used by the proof) go straight to that person's page
+      function openFromHash() {
+        var slug = window.location.hash.slice(1);
+        if (slug && document.querySelector('.tcard[data-slug="' + CSS.escape(slug) + '"]')) {
+          window.location.replace('/team/' + slug);
+          return true;
+        }
+        return false;
+      }
+      window.addEventListener('hashchange', openFromHash);
+      if (openFromHash()) return;
+      var filters = document.getElementById('filters');
+      var cards = document.querySelectorAll('#team-grid .tcard');
+      filters.addEventListener('click', function (e) {
+        var btn = e.target.closest('button');
+        if (!btn) return;
+        filters.querySelectorAll('button').forEach(function (b) { b.classList.toggle('is-active', b === btn); });
+        cards.forEach(function (card) {
+          card.hidden = btn.dataset.dept !== 'all' && card.dataset.dept !== btn.dataset.dept;
+        });
+      });
+    })();
+  </script>
+</Base>

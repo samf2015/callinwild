@@ -1,0 +1,26 @@
+---
+import client from '../../../tina/__generated__/client';
+import Base from '../../layouts/Base.astro';
+import LegalDocView from '../../components/LegalDocView';
+
+export async function getStaticPaths() {
+  const docs = await client.queries.legalDocConnection({ first: 1000 });
+  return (docs.data.legalDocConnection.edges ?? [])
+    .map((edge) => edge?.node?._sys.filename)
+    .filter(Boolean)
+    .map((slug) => ({ params: { slug } }));
+}
+
+const result = await client.queries.legalDoc({ relativePath: `${Astro.params.slug}.md` });
+const doc = result.data.legalDoc;
+---
+<Base
+  title={doc.title.replace(/\s+/g, ' ')}
+  heading={doc.title}
+  bannerStyle="home"
+  bannerImage={doc.bannerImage ?? undefined}
+  plainSection
+  sectionClass="callin-terms"
+>
+  <LegalDocView client:load {...result} />
+</Base>
