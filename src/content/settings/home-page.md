@@ -1,7 +1,7 @@
 ---
 heroHeading: Delivering practical solutions for local and international clients
 heroImage: /images/home/hero.jpg
-welcomeHeading: Welcome.....
+welcomeHeading: Welcome
 servicesHeading: Our Services
 peopleHeading: Our People
 people:
