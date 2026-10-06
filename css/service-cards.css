@@ -1,0 +1,49 @@
+/* "Our Services" cards, shared by the homepage and the Services page. Values copied from the V2 homepage proof
+   (https://proofs.iomad.com/CW-V2/callin-wild-homepage.html). Prefixed cw- with every property set explicitly,
+   so callin.css (loaded on the Services page) can't change the look. */
+@font-face {
+  font-family: 'Playfair Var';
+  src: url(/fonts/playfair-var.woff2) format('woff2');
+  font-weight: 400 900; font-style: normal; font-display: swap;
+}
+
+.cw-services, .cw-services *, .cw-services *::before, .cw-services *::after { box-sizing: border-box; }
+.cw-services {
+  float: left; width: 100%; margin: 0; padding: 70px 0; background: #15161c;
+  font-family: 'Nunito Var', sans-serif; font-size: 16px; font-weight: 400; line-height: 1.5;
+  -webkit-font-smoothing: antialiased; text-align: left;
+}
+.cw-services-heading { display: flex; align-items: center; gap: 14px; margin: 0 0 40px; }
+.cw-services-heading-mark { width: 10px; height: 10px; background: #6bb64f; flex: none; }
+.cw-services-heading h2 { font-family: 'Playfair Var', serif; font-weight: 500; line-height: 1.25; text-transform: none; letter-spacing: normal; color: #ffffff; margin: 0; font-size: 26px; white-space: nowrap; }
+.cw-services-heading-rule { flex: 1; height: 1px; background: rgba(255,255,255,.18); }
+
+.cw-services-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 26px; }
+.cw-service-card { position: relative; display: block; text-decoration: none; background: #1b1d24; border: 1px solid rgba(255,255,255,.08); border-radius: 4px; padding: 34px 26px 28px; opacity: 0; transition: background .18s ease, border-color .18s ease, opacity .7s cubic-bezier(.16,.8,.24,1), transform .7s cubic-bezier(.16,.8,.24,1); }
+.cw-services-grid .cw-service-card:nth-child(3n+1) { transform: translateX(-38px); }
+.cw-services-grid .cw-service-card:nth-child(3n+2) { transform: translateY(26px); }
+.cw-services-grid .cw-service-card:nth-child(3n) { transform: translateX(38px); }
+.cw-services-grid .cw-service-card:nth-child(1) { transition-delay: .05s; }
+.cw-services-grid .cw-service-card:nth-child(2) { transition-delay: .15s; }
+.cw-services-grid .cw-service-card:nth-child(3) { transition-delay: .25s; }
+.cw-services-grid .cw-service-card:nth-child(4) { transition-delay: .35s; }
+.cw-services-grid .cw-service-card:nth-child(5) { transition-delay: .45s; }
+.cw-services-grid .cw-service-card.is-visible { opacity: 1 !important; transform: translate(0,0) !important; }
+@media (prefers-reduced-motion: reduce) {
+  .cw-service-card { opacity: 1; transform: none !important; transition: background .18s ease, border-color .18s ease; }
+}
+.cw-service-card:hover { background: #20232b; border-color: rgba(255,255,255,.18); }
+.cw-service-arrow { position: absolute; top: -16px; right: 24px; width: 40px; height: 40px; background: #c8b374; display: flex; align-items: center; justify-content: center; transition: transform .18s ease; }
+.cw-service-arrow svg { width: 16px; height: 16px; stroke: #15161c; }
+.cw-service-card:hover .cw-service-arrow { transform: translateX(3px); }
+.cw-service-card h3 { font-family: 'Playfair Var', serif; font-weight: 500; line-height: 1.25; text-transform: none; letter-spacing: normal; text-align: left; font-size: 20px; margin: 0 0 12px; padding-right: 16px; color: #d67e0e; }
+.cw-service-card p { font-family: 'Nunito Var', sans-serif; font-size: 13.5px; line-height: 1.65; text-align: left; color: rgba(255,255,255,.78); margin: 0 !important; }
+
+@media (max-width: 980px) {
+  .cw-services-grid { grid-template-columns: repeat(2,1fr); }
+}
+@media (max-width: 640px) {
+  .cw-services-grid { grid-template-columns: 1fr; }
+  .cw-services-heading h2 { white-space: normal; }
+  .cw-service-arrow { top: -14px; }
+}

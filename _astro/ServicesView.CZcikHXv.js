@@ -1,0 +1,1 @@
+import{n as e,t}from"./react.CYvvxrGJ.js";import{t as n}from"./jsx-runtime.DvU585tb.js";import{t as r}from"./rich-text.Ds042RPs.js";var i=n();function a(n){let{data:a}=t(n),o=a.servicesPage;return(0,i.jsx)(`div`,{"data-tina-field":e(o,`body`),children:(0,i.jsx)(r,{content:o.body})})}export{a as default};
